@@ -107,9 +107,9 @@ var doBind = function () {
   directive.scrollListener = throttle(doCheck.bind(directive), directive.throttleDelay);
   directive.scrollEventTarget.addEventListener('scroll', directive.scrollListener);
 
-  this.vm.$on('hook:beforeDestroy', function () {
-    directive.scrollEventTarget.removeEventListener('scroll', directive.scrollListener);
-  });
+  // this.vm.$on('hook:beforeDestroy', function () {
+  //   directive.scrollEventTarget.removeEventListener('scroll', directive.scrollListener);
+  // });
 
   var disabledExpr = element.getAttribute('infinite-scroll-disabled');
   var disabled = false;
@@ -179,14 +179,14 @@ var doCheck = function (force) {
 };
 
 export default {
-  bind(el, binding, vnode) {
+  beforeMount(el, binding, vnode) {
     el[ctx] = {
       el,
-      vm: vnode.context,
+      vm: binding.instance,
       expression: binding.value
     };
     const args = arguments;
-    el[ctx].vm.$on('hook:mounted', function () {
+    // el[ctx].vm.$on('hook:mounted', function () {
       el[ctx].vm.$nextTick(function () {
         if (isAttached(el)) {
           doBind.call(el[ctx], args);
@@ -206,10 +206,10 @@ export default {
 
         tryBind();
       });
-    });
+    // });
   },
 
-  unbind(el) {
+  unmounted(el) {
     if (el && el[ctx] && el[ctx].scrollEventTarget)
       el[ctx].scrollEventTarget.removeEventListener('scroll', el[ctx].scrollListener);
   }
